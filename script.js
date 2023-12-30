@@ -1,4 +1,5 @@
 const fs = require("node:fs");
+const path = require("path");
 
 const html = `<!DOCTYPE html>
 <html lang="en">
@@ -196,3 +197,37 @@ function createAndWriteFile(path, content, msg) {
     console.log(`----------------------------------------------`);
   });
 }
+
+unction deleteGitFolder() {
+  const currentDirectory = process.cwd();
+  const gitFolderPath = path.join(currentDirectory, '.git');
+
+  if (fs.existsSync(gitFolderPath)) {
+    console.log(`Deleting .git folder in ${currentDirectory}`);
+    deleteFolderRecursive(gitFolderPath);
+    console.log('.git folder deleted successfully');
+  } else {
+    console.log('.git folder not found in the current directory');
+  }
+}
+
+function deleteFolderRecursive(folderPath) {
+  if (fs.existsSync(folderPath)) {
+    fs.readdirSync(folderPath).forEach((file) => {
+      const curPath = path.join(folderPath, file);
+
+      if (fs.lstatSync(curPath).isDirectory()) {
+        // Recursive call for directories
+        deleteFolderRecursive(curPath);
+      } else {
+        // Delete file
+        fs.unlinkSync(curPath);
+      }
+    });
+
+    // After deleting all files, delete the directory itself
+    fs.rmdirSync(folderPath);
+  }
+}
+
+deleteGitFolder();
