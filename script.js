@@ -198,7 +198,7 @@ function createAndWriteFile(path, content, msg) {
   });
 }
 
-unction deleteGitFolder() {
+function deleteGitFolder() {
   const currentDirectory = process.cwd();
   const gitFolderPath = path.join(currentDirectory, '.git');
 
