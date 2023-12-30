@@ -7,7 +7,7 @@ const html = `<!DOCTYPE html>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" href="./public/style.css">
 
     <script src="index.js" defer type="module"></script>
 </head>
@@ -15,26 +15,6 @@ const html = `<!DOCTYPE html>
     <h1>It is what it is</h1>
 </body>
 </html>`;
-
-const gulp = `// npm install 
-
-const { src,dest,watch,series } = require('gulp');
-const sass = require('gulp-sass')(require('sass'));
-
-function compileToCSS(){
-    return src('./src/scss/style.scss')
-    .pipe(sass().on('error',err => console.log(err)))
-    .pipe(dest('./public/css'))
-}
-
-function watchSCSS(){
-    watch('style.scss',compileToCSS);
-}
-
-module.exports = series(compileToCSS,watchSCSS);
-
-// npx gulp
-`
 
 const tsConfig = `{
   "compilerOptions": {
@@ -139,86 +119,63 @@ const tsConfig = `{
     "skipLibCheck": true                                 /* Skip type checking all .d.ts files. */
   }
 }
-`
-const functions = `@use "sass:math";
+`;
 
-@function rem($size) {
-  @if (math.is-unitless($size)) {
-    @return calc($size / 16) + rem;
-  } @else {
-    @error "Invalid parameter in rem function";
+const package = `{"dependencies" : {
+
+},"devDependencies": {
+    "@types/firebase": "^3.2.1",
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "autoprefixer": "^10.0.1",
+    "postcss": "^8",
+    "tailwindcss": "^3.3.0",
+    "typescript": "^5"
+  }}`;
+
+const tailwindConfig = `/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: ["./src/**/*.{html,js}"],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+}`;
+
+const css = `@tailwind base;
+@tailwind components;
+@tailwind utilities;`;
+
+const postcss = `module.exports = {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
   }
-}`
-
-const boilerplate = `@use '../utility/functions' as f;
-@use '../utility/variables.scss' as v;
-@use '../utility/mediaQueries' as mq;
-`
-
-const variables = `@use './functions' as f;`;
-
-const style = `@forward './local/boilerplate';
-@use './utility/functions' as f;
-@use './utility/variables' as v;
-@use './utility/mediaQueries' as mq;
-`
-const package = `
-{
-  "dependencies": {
-    "gulp": "^4.0.2",
-    "gulp-sass": "^5.1.0",
-    "sass": "^1.59.3"
-  }
-}`
-
-const media = `@use './functions' as f;
-@use 'sass:map' ;
-
-$breakpointsFrom : (
-    'fromNothing' : f.rem(0), 
-    'fromMobile' : f.rem(375), 
-    'fromTablet' : f.rem(900), 
-    'fromDesktop' : f.rem(1440)
-);
-
-$breakpointsTo : (
-    'toMobile' : f.rem(374.98), 
-    'toTablet' : f.rem(899.98), 
-    'toDesktop' : f.rem(1439.98), 
-    'todWideDesktop' : f.rem(1919.98), 
-);
-
-@mixin breakpoint($from,$to){
-    @media (min-width : map.get($breakpointsFrom,$from)) and (max-width : map.get($breakpointsTo,$to)) {
-        @content
-    }
-}
-`
+}`;
 
 if (!fs.existsSync("./public")) {
   createFolder("./public", ["public"]);
-
   createAndWriteFile("./public/index.html", html, ["index.html"]);
+  createAndWriteFile("./public/global.css", css, ["global.css"]);
 }
 
 if (!fs.existsSync("./src")) {
   createFolder("./src/app", ["src", "app"]);
-  createAndWriteFile('./src/app/index.ts','console.log("The name is Ramrahim")',['index.ts'])
-  createFolder("./src/scss/local", ["scss", "local"]);
-  createAndWriteFile('./src/scss/local/_boilerplate.scss',boilerplate,['boilerplate.scss'])
-  createFolder("./src/scss/utility", ["scss", "utility"]);
-  createAndWriteFile('./src/scss/utility/_functions.scss',functions,['functions.scss'])
-  createAndWriteFile('./src/scss/utility/_variables.scss',variables,['variables.scss'])
-  createAndWriteFile('./src/scss/utility/_mediaQueries.scss',media,['mediaQueries.scss'])
-  createAndWriteFile('./src/scss/style.scss',style,['style.scss'])
+  createAndWriteFile("./src/app/index.ts", 'console.log("Sheesh")', [
+    "index.ts",
+  ]);
 }
 
-createAndWriteFile('./gulpfile.js',gulp,['gulpfile.js'])
-createAndWriteFile('./tsconfig.json',tsConfig,['tsconfig.json'])
-createAndWriteFile('./package.json',package,['package.json'])
+createAndWriteFile("./tsconfig.json", tsConfig, ["tsconfig.json"]);
+createAndWriteFile("./package.json", package, ["package.json"]);
+createAndWriteFile("./tailwind.config.js", tailwindConfig, [
+  "tailwind.config.js",
+]);
+createAndWriteFile("./postcss.config.js", postcss, ["postcss.config.js"]);
 
-fs.unlinkSync('./script.js');
-console.log(`<<<<<<<<<<<<<<<<<<< Bye... >>>>>>>>>>>>>>>>>>>`)
+fs.unlinkSync("./script.js");
+console.log(`<<<<<<<<<<<<<<<<<<< Bye... >>>>>>>>>>>>>>>>>>>`);
 
 function createFolder(path, msg) {
   fs.mkdirSync(path, { recursive: true }, (err) => {
@@ -226,16 +183,16 @@ function createFolder(path, msg) {
   });
   msg.forEach((e) => {
     console.log(`'${e}' created successfully !!!`);
-    console.log(`----------------------------------------------`)
-});
+    console.log(`----------------------------------------------`);
+  });
 }
 
 function createAndWriteFile(path, content, msg) {
-    fs.writeFile(path, content, (err) => {
-        if (err) console.log(err);
-    });
-    msg.forEach((e) => {
-        console.log(`'${e}' created successfully!!!`);
-        console.log(`----------------------------------------------`)
-    });
+  fs.writeFile(path, content, (err) => {
+    if (err) console.log(err);
+  });
+  msg.forEach((e) => {
+    console.log(`'${e}' created successfully!!!`);
+    console.log(`----------------------------------------------`);
+  });
 }
